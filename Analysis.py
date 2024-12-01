@@ -20,14 +20,13 @@ def get_chess_archives(username):
     if response.status_code == 200:
         print(response.status_code)
         return response.json()
-        
-
-def get_chess_games(username):
+    
+def get_new_chess_games(username):
     dataframes = []
     headers = {'User-Agent': 'head2head'}
     urls = pd.DataFrame(get_chess_archives(username))
     print(urls['archives'])
-    
+        
     for url in urls['archives']:
         print(url)
         response = requests.get(url, headers=headers)
@@ -38,9 +37,22 @@ def get_chess_games(username):
             dataframes.append(df)
 
     df = pd.concat(dataframes, ignore_index=True)
-        
 
     return df
+        
+def get_chess_games(username, replace=False):
+    if not replace:
+        try:
+            df = pd.read_csv(f"{username}.csv")
+        except:
+            df = get_new_chess_games(username)
+    else:
+        df = get_new_chess_games(username)
+    
+    return df
+    
+    
+        
 
 
 def pgn_to_eco(pgn):
@@ -202,10 +214,10 @@ def create_gui():
     def on_save_button_click():
         username = username_entry.get()
         if username:
-            data = get_chess_games(username)
-            if data:
+            data = get_chess_games(username, replace=True)
+            if not data.empty:
                 save_as_csv(data, username)
-                messagebox.showerror(f'saved as {username}.csv')
+                messagebox.showinfo("Success", f'Saved as {username}.csv')
             else:
                 messagebox.showerror("Error", "Could not fetch data for this user.")
         else:
@@ -217,8 +229,6 @@ def create_gui():
     root.mainloop()
 
 # Run the app
-create_gui()
+if __name__ == '__main__':
+    create_gui()
 
-
-
-# problem with case sensitivity on bdf and wdf
