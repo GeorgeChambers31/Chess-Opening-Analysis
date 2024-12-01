@@ -16,5 +16,5 @@ This project opens a terminal where you can insert a chess.com username and be g
 - **Version Control**: Git, GitHub
 - **Data Analysis**: Data cleaning, manipulation, and analysis
 - **API Integration**: Fetching and processing data from external APIs
-- **Visualization**: Creating charts and graphs to display results
+- **Visualization**: Creating graphs to display results
 

@@ -102,6 +102,7 @@ def analyse_games(df, username, selected_colour):
     stats['Avg_Self_Rating'] = stats['Avg_Self_Rating'].apply(rounder)
 
     print(stats)
+    return stats
 
 def save_as_csv(games_data, username):
     games_data.to_csv(f'{username}.csv', index=False)
