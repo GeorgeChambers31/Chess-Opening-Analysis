@@ -1,9 +1,11 @@
 import requests
 import pandas as pd
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 import json
 import re
 
@@ -52,6 +54,7 @@ def eco_to_opening(eco):
 
 def rounder(x):
     return round(x,1)
+
 
 # analyse games using pandas
 def analyse_games(df, username, selected_colour):   
@@ -107,16 +110,44 @@ def analyse_games(df, username, selected_colour):
 def save_as_csv(games_data, username):
     games_data.to_csv(f'{username}.csv', index=False)
 
+def plot_results(plot_frame, selected_opening, stats):
+    # Clear previous plots
+    for widget in plot_frame.winfo_children():
+        if isinstance(widget, tk.Canvas):
+            widget.destroy()
+
+    # Filter data for the selected opening
+    opening_data = stats[stats['opening'] == selected_opening].iloc[0]
+    labels = ['Win Rate', 'Draw Rate', 'Loss Rate']
+    sizes = [opening_data['Win_Rate'], opening_data['Draw_Rate'], opening_data['Loss_Rate']]
+
+    # Create a Matplotlib figure
+    fig = Figure(figsize=(6, 4), dpi=100)
+    ax = fig.add_subplot(111)
+
+    # Plot the pie chart
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#4CAF50', '#FFC107', '#F44336'])
+    ax.set_title(f"{selected_opening} Performance")
+
+    # Embed the Matplotlib figure in Tkinter
+    canvas = FigureCanvasTkAgg(fig, master=plot_frame)
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=1, column=0, columnspan=2, padx=5)
+
+# Create a DataFrame
+chess_stats = None
 # Tkinter GUI setup
 def create_gui():
+    global chess_stats
     root = tk.Tk()
     root.title("Chess Profile Analysis")
-
+    recieved_data = False
     tk.Label(root, text="Enter Chess.com Username:").pack(pady=10)
     username_entry = tk.Entry(root)
     username_entry.pack(pady=10)
 
     def on_analyse_button_click(colour):
+        global chess_stats
         username = username_entry.get().strip()
         if username:
             if colour == 'white':
@@ -127,7 +158,8 @@ def create_gui():
             try:
                 data = get_chess_games(username)
                 if not data.empty:
-                    result_stats = analyse_games(data, username, colour)
+                    chess_stats = analyse_games(data, username, colour)
+                    update_ui_after_analysis()
                 else:
                     messagebox.showerror("Error", "Could not fetch data for this user.")
             except Exception as e:
@@ -141,8 +173,25 @@ def create_gui():
         else:
             messagebox.showerror("Input Error", "Please enter a Chess.com username.")
 
+    def update_ui_after_analysis():
+        global chess_stats
+        if chess_stats is not None:
+            for widget in plot_frame.winfo_children():
+                widget.destroy()
+            # Create the opening selection menu
+            opening_var = tk.StringVar(value=chess_stats['opening'][0])
+            opening_menu = ttk.OptionMenu(plot_frame, opening_var, chess_stats['opening'][0], *chess_stats['opening'])
+            opening_menu.grid(row=0, column=0, padx=5)
+
+            # Create the plot button
+            plot_button = ttk.Button(plot_frame, text="Generate Pie Chart", command=lambda: plot_results(plot_frame, opening_var.get(), chess_stats))
+            plot_button.grid(row=0, column=1, padx=5)
+
     button_frame = tk.Frame(root)
     button_frame.pack(pady=10)
+
+    plot_frame = ttk.Frame(root)
+    plot_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
     white_analyse_button = tk.Button(button_frame, text="Analyse White", command=lambda: on_analyse_button_click("white"))
     white_analyse_button.grid(row=0, column=0, padx=5)
@@ -162,8 +211,8 @@ def create_gui():
         else:
             messagebox.showerror("Input Error", "Please enter a Chess.com username.")
             
-    save_button = tk.Button(root, text="Save .csv", command=on_save_button_click)
-    save_button.pack(pady=20)
+    save_button = tk.Button(button_frame, text="Save .csv", command=on_save_button_click)
+    save_button.grid(row=0, column=2, padx=5)
 
     root.mainloop()
 
