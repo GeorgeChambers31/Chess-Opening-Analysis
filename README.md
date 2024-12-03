@@ -7,6 +7,7 @@ This project opens a terminal where you can insert a chess.com username and be g
 - [Installation](#installation)
 - [Usage](#usage)
 - [Skills-Demonstrated](#skills-demonstrated)
+- [Contact](#contact)
 
 
 ## Features
@@ -46,3 +47,6 @@ Running the code will pop up a Tkinter window which provides a user friendly exp
 - **API Integration**: Fetching and processing data from external APIs
 - **Visualization**: Creating graphs to display results
 
+## Contact
+
+Created by [George Chambers](https://github.com/GeorgeChambers31) - feel free to reach out!
