@@ -18,14 +18,12 @@ def get_chess_archives(username):
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        print(response.status_code)
         return response.json()
     
 def get_new_chess_games(username):
     dataframes = []
     headers = {'User-Agent': 'head2head'}
     urls = pd.DataFrame(get_chess_archives(username))
-    print(urls['archives'])
         
     for url in urls['archives']:
         print(url)
@@ -80,9 +78,6 @@ def analyse_games(df, username, selected_colour, time_class):
     df['Draw'] = df['white.result'].apply(lambda x: 1 if x in draws else 0)
     losses = ['timeout', 'checkmated', 'resigned', 'abandoned']
     df['Black_Win'] = df['white.result'].apply(lambda x: 1 if x in losses else 0)
-    df['start_time'] = df['eco']
-    
-    df = df.drop(columns = ['tcn', 'uuid','initial_setup', 'fen','accuracies.white', 'accuracies.black','white.@id', 'white.uuid', 'black.@id', 'black.uuid','url', 'time_control', 'end_time', 'rated', 'time_class','rules', 'eco', 'white.result', 'black.result', 'start_time'], axis=1)
     df['eco'] = df['pgn'].apply(pgn_to_eco)
     df['opening'] = df['eco'].apply(eco_to_opening)
     wdf = df[df['white.username'].str.lower() == username.lower()]
@@ -93,8 +88,6 @@ def analyse_games(df, username, selected_colour, time_class):
         df = wdf
     elif selected_colour == 'black':
         df = bdf
-    else:
-        print('womp') 
     
     stats = df.groupby('opening').agg(
         Games_Played=('opening', 'count'),
@@ -176,7 +169,12 @@ def create_gui():
                 else:
                     messagebox.showerror("Error", "Could not fetch data for this user.")
             except Exception as e:
-                messagebox.showerror("Error", f"An error occurred: {str(e)}")
+                if str(e) == 'No objects to concatenate':
+                    messagebox.showerror("Error", "No Games Found")
+                elif str(e) == "'archives'":
+                    messagebox.showerror("Error", "No User Found")
+                else:
+                    messagebox.showerror("Error", f"Error: {str(e)}")
             finally:
                 if colour == 'white':
                     white_analyse_button.config(state=tk.NORMAL, text="Analyse White")

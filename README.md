@@ -19,8 +19,6 @@ This project opens a terminal where you can insert a chess.com username and be g
 
 ## Installation
 
-## Installation
-
 1. Clone the repository:
    ```bash
    git clone https://github.com/GeorgeChambers31/Chess-Opening-Analysis.git
