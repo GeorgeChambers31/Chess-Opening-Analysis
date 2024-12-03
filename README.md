@@ -2,6 +2,13 @@
 
 This project opens a terminal where you can insert a chess.com username and be given a quick analysis of how successful a player's openings are
 
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Skills-Demonstrated](#skills-demonstrated)
+
+
 ## Features
 
 - Data collection from the Chess.com API
@@ -9,6 +16,29 @@ This project opens a terminal where you can insert a chess.com username and be g
 - Simple User Interface
 - Option to save games as a .csv file
 - Visualization of chess opening statistics
+
+## Installation
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/GeorgeChambers31/Chess-Opening-Analysis.git
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Usage
+
+ Run the script:
+   ```bash
+   python Analysis.py
+   ```
+
+Running the code will pop up a Tkinter window which provides a user friendly experience including dropdown boxes for time class and openings and buttons with clear directions for the user.
 
 ## Skills Demonstrated
 
