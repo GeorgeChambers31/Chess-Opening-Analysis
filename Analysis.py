@@ -69,9 +69,10 @@ def rounder(x):
 
 
 # analyse games using pandas
-def analyse_games(df, username, selected_colour):   
+def analyse_games(df, username, selected_colour, time_class):   
     # Cleaning
-    #df = df[df['time_class'] == 'blitz']
+    if time_class != 'All':
+        df = df[df['time_class'] == time_class]
     df = df[df['rated'] == True]
     df = df[df['rules'] == 'chess']
     df['White_Win'] = df['white.result'].apply(lambda x: 1 if x == 'win' else 0)
@@ -158,7 +159,7 @@ def create_gui():
     username_entry = tk.Entry(root)
     username_entry.pack(pady=10)
 
-    def on_analyse_button_click(colour):
+    def on_analyse_button_click(colour, time_class):
         global chess_stats
         username = username_entry.get().strip()
         if username:
@@ -170,7 +171,7 @@ def create_gui():
             try:
                 data = get_chess_games(username)
                 if not data.empty:
-                    chess_stats = analyse_games(data, username, colour)
+                    chess_stats = analyse_games(data, username, colour, time_class)
                     update_ui_after_analysis()
                 else:
                     messagebox.showerror("Error", "Could not fetch data for this user.")
@@ -202,14 +203,19 @@ def create_gui():
     button_frame = tk.Frame(root)
     button_frame.pack(pady=10)
 
+    classes = ['bullet','blitz','rapid', 'All']
+    class_var = tk.StringVar(value=classes[0])
+    class_menu = ttk.OptionMenu(button_frame, class_var, classes[0], *classes)
+    class_menu.grid(row=0, column=0, columnspan=3, padx=5)
+
     plot_frame = ttk.Frame(root)
     plot_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
-    white_analyse_button = tk.Button(button_frame, text="Analyse White", command=lambda: on_analyse_button_click("white"))
-    white_analyse_button.grid(row=0, column=0, padx=5)
+    white_analyse_button = tk.Button(button_frame, text="Analyse White", command=lambda: on_analyse_button_click("white", class_var.get()))
+    white_analyse_button.grid(row=1, column=0, padx=5)
 
-    black_analyse_button = tk.Button(button_frame, text="Analyse Black", command=lambda: on_analyse_button_click("black"))
-    black_analyse_button.grid(row=0, column=1, padx=5)
+    black_analyse_button = tk.Button(button_frame, text="Analyse Black", command=lambda: on_analyse_button_click("black", class_var.get()))
+    black_analyse_button.grid(row=1, column=1, padx=5)
 
     def on_save_button_click():
         username = username_entry.get()
@@ -224,7 +230,7 @@ def create_gui():
             messagebox.showerror("Input Error", "Please enter a Chess.com username.")
             
     save_button = tk.Button(button_frame, text="Save .csv", command=on_save_button_click)
-    save_button.grid(row=0, column=2, padx=5)
+    save_button.grid(row=1, column=2, padx=5)
 
     root.mainloop()
 
